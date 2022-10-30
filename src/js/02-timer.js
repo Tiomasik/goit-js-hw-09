@@ -16,15 +16,58 @@ refs.timeHours.style.color = "violet";
 refs.timeMinutes.style.color = "yellow";
 refs.timeSeconds.style.color = "red";
 
-const timeStart = () => {
-    console.log('Пустили таймер');
-    refs.btnStart.setAttribute('disabled', 'disabled');
+const dateNow = new Date();
+let dateSelected;
+
+class Timer {
+    constructor({ onFaceTime }) {
+        this.onFaceTime = onFaceTime;
+        this.intervalId = null;
+    }
+    
+    getDifferenceTime() {
+        refs.btnStart.setAttribute('disabled', 'disabled');
+        refs.inputEl.setAttribute('disabled', 'disabled');
+
+        this.intervalId = setInterval(() => {
+            const dateCurent = new Date();
+            this.differenceTime = dateSelected - dateCurent; 
+            const time = this.convertMs(this.differenceTime);
+            this.onFaceTime(time);
+        }, 1000);
+    }
+
+    convertMs(ms) {
+        const second = 1000;
+        const minute = second * 60;
+        const hour = minute * 60;
+        const day = hour * 24;
+
+        const days = this.pad(Math.floor(ms / day));
+        const hours = this.pad(Math.floor((ms % day) / hour));
+        const minutes = this.pad(Math.floor(((ms % day) % hour) / minute));
+        const seconds = this.pad(Math.floor((((ms % day) % hour) % minute) / second));
+
+        return { days, hours, minutes, seconds };
+    }
+
+    pad(value) {
+    return String(value).padStart(2, '0');
+  }
 }
 
-const clickBtn = refs.btnStart.addEventListener('click', timeStart);
+const timer = new Timer({
+  onFaceTime: updateTimeFace
+});
 
-const dateNow = new Date();
-console.log(dateNow.getTime());
+function updateTimeFace({ days, hours, minutes, seconds }) {
+    refs.timeDays.textContent = days;
+    refs.timeHours.textContent = hours;
+    refs.timeMinutes.textContent = minutes;
+    refs.timeSeconds.textContent = seconds;
+}
+
+const clickBtn = refs.btnStart.addEventListener('click', timer.getDifferenceTime.bind(timer));
 
 const fp = flatpickr("#datetime-picker", {
     enableTime: true,
@@ -36,15 +79,7 @@ const fp = flatpickr("#datetime-picker", {
             Notiflix.Notify.failure("Please choose a date in the future");
         } else {
             refs.btnStart.removeAttribute('disabled');
-            console.log(selectedDates[0].getTime());
+            dateSelected = selectedDates[0].getTime()
         }
     },
 });
-
-class Timer {
-    constructor() {
-        
-    }
-}
-
-const timer = new Timer();
