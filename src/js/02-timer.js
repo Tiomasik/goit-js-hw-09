@@ -22,19 +22,28 @@ let dateSelected;
 class Timer {
     constructor({ onFaceTime }) {
         this.onFaceTime = onFaceTime;
-        this.intervalId = null;
+        this.intervalTime = null;
     }
     
     getDifferenceTime() {
         refs.btnStart.setAttribute('disabled', 'disabled');
         refs.inputEl.setAttribute('disabled', 'disabled');
 
-        this.intervalId = setInterval(() => {
+        this.intervalTime = setInterval(() => {
             const dateCurent = new Date();
             this.differenceTime = dateSelected - dateCurent; 
             const time = this.convertMs(this.differenceTime);
             this.onFaceTime(time);
+
+            if (this.differenceTime <= 0) {
+                this.stopTime()
+                updateTimeFace({ days : "00", hours: "00", minutes: "00", seconds: "00" })
+            }
         }, 1000);
+    }
+
+    stopTime() {
+        clearInterval(this.intervalTime);
     }
 
     convertMs(ms) {
