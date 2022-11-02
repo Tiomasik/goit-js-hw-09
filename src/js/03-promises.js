@@ -33,7 +33,7 @@ function onStartMesenger(evt) {
     createPromise(dataPromise).then(onMakePromiseSuccess).catch(onMakePromiseError);
   }
 
-  refs.formEl.reset();
+  // refs.formEl.reset();
   dataPromise.position = 0;
   dataPromise.delay = 0;
 }
